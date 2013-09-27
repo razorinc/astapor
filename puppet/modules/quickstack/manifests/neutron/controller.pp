@@ -80,6 +80,14 @@ class quickstack::neutron::controller (
         internal_address => $controller_priv_floating_ip,
     }
 
+    class {"heat::keystone::auth":
+        password => $heat_user_password,
+        heat_public_address => $controller_priv_floating_ip,
+        heat_admin_address => $controller_priv_floating_ip,
+        heat_internal_address => $controller_priv_floating_ip,
+        cfn_auth_name => undef,
+    }
+
     class {'openstack::glance':
         db_host        => $controller_priv_floating_ip,
         user_password  => $glance_user_password,
@@ -164,6 +172,11 @@ class quickstack::neutron::controller (
         rpc_backend       => 'heat.openstack.common.rpc.impl_qpid',
         qpid_hostname     => $controller_priv_floating_ip,
         verbose           => $verbose,
+    }
+
+    class {'heat::db::mysql':
+        password => $heat_db_password,
+        allowed_hosts => "%%",
     }
 
     class {'heat::db':

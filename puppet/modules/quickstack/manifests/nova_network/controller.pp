@@ -102,6 +102,14 @@ class quickstack::nova_network::controller (
         internal_address => $controller_priv_floating_ip,
     }
 
+    class {"heat::keystone::auth":
+        password => $heat_user_password,
+        heat_public_address => $controller_priv_floating_ip,
+        heat_admin_address => $controller_priv_floating_ip,
+        heat_internal_address => $controller_priv_floating_ip,
+        cfn_auth_name => undef,
+    }
+
     class {'openstack::glance':
         db_host               => $controller_priv_floating_ip,
         user_password  => $glance_user_password,
@@ -155,6 +163,11 @@ class quickstack::nova_network::controller (
         heat_metadata_server_url      => "http://${controller_priv_floating_ip}:8000",
         heat_waitcondition_server_url => "http://${controller_priv_floating_ip}:8000/v1/waitcondition",
         heat_watch_server_url         => "http://${controller_priv_floating_ip}:8003",
+    }
+
+    class { 'heat::db::mysql':
+        password => $heat_db_password,
+        allowed_hosts => "%%",
     }
 
     class { 'heat::db':
